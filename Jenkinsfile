@@ -34,7 +34,8 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'gradle build'
+                withEnv(["PATH=/opt/gradle/gradle-8.5/bin:${env.PATH}"]) {
+                    sh 'gradle build'
             }
         }
 
