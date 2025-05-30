@@ -34,7 +34,7 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'gradle build'
+                sh 'dotnet restore cartservice.sln'
             }
         }
 
