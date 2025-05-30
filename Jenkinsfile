@@ -34,9 +34,10 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'gradle build'
+                sh 'go mod download'
             }
         }
+
 
         stage("Trivy - File System Scan") {
             steps {
