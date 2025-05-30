@@ -34,7 +34,10 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'gradle build'
+               sh '''
+                   ./genproto.sh
+                   pip install -r requirements.txt
+                '''
             }
         }
 
