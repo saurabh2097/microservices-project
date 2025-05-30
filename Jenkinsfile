@@ -34,9 +34,10 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'gradle build'
+                sh 'pip install -r requirements.txt'
             }
         }
+
 
         stage("Trivy - File System Scan") {
             steps {
