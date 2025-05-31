@@ -39,9 +39,9 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                withEnv(["PATH=/opt/gradle/gradle-8.5/bin:${env.PATH}"]) {
-                    sh 'gradle build'
-                }  // <-- added missing closing brace here for withEnv
+                sh 'chmod +x ./gradlew'
+                sh './gradlew build --no-daemon'
+                    }  // <-- added missing closing brace here for withEnv
             }      // <-- added missing closing brace here for steps
         }          // <-- added missing closing brace here for stage
 
