@@ -39,11 +39,33 @@ pipeline {
 
         stage("Install Dependencies") {
             steps {
-                sh 'chmod +x ./gradlew'
-                sh './gradlew build --no-daemon'
-                    }  // <-- added missing closing brace here for withEnv
-            }      // <-- added missing closing brace here for steps
-        }          // <-- added missing closing brace here for stage
+                script {
+                    if (fileExists('build.gradle') || fileExists('gradlew')) {
+                        echo "Gradle project detected"
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew build --no-daemon'
+                    } else if (fileExists('pom.xml')) {
+                        echo "Maven project detected"
+                        sh 'mvn clean package'
+                    } else if (fileExists('requirements.txt')) {
+                        echo "Python project detected"
+                        sh 'pip install -r requirements.txt'
+                    } else if (fileExists('package.json')) {
+                        echo "Node.js project detected"
+                        sh 'npm install'
+                    } else if (fileExists('go.mod')) {
+                        echo "Go project detected"
+                        sh '''
+                            go mod tidy
+                            go build -v ./...
+                            go test ./...
+                        '''
+                    } else {
+                        error "Unknown project type. Cannot install dependencies."
+                    }
+                }
+            }
+        }         // <-- added missing closing brace here for stage
 
         stage("Generate Protobuf Code") {
             when {
