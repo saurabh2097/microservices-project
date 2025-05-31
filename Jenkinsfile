@@ -34,6 +34,7 @@ pipeline {
                     } else if (fileExists('package.json')) {
                         echo "Node.js project detected"
                         sh 'npm install'
+                        sh 'npm ci'
                     } else if (fileExists('go.mod')) {
                         echo "Go project detected"
                         sh '''
