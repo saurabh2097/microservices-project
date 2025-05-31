@@ -28,9 +28,16 @@ pipeline {
                     } else if (fileExists('pom.xml')) {
                         echo "Maven project detected"
                         sh 'mvn clean package'
+                    } else if (fileExists('requirements.in')) {
+                        echo "Python project detected (requirements.in found)"
+                        sh '''
+                            pip install pip-tools   # install pip-compile tool
+                            pip-compile requirements.in  # generate requirements.txt
+                            pip install -r requirements.txt
+                            '''
                     } else if (fileExists('requirements.txt')) {
-                        echo "Python project detected"
-                        sh 'pip install -r requirements.txt'
+                            echo "Python project detected (requirements.txt found)"
+                            sh 'pip install -r requirements.txt'
                     } else if (fileExists('package.json')) {
                         echo "Node.js project detected"
                         sh 'npm install'
