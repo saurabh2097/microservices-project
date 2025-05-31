@@ -45,6 +45,14 @@ pipeline {
             }      // <-- added missing closing brace here for steps
         }          // <-- added missing closing brace here for stage
 
+        stage("Generate Protobuf Code") {
+            when {
+                expression { fileExists('genproto.sh') }
+                }
+            steps {
+                sh 'chmod +x genproto.sh && ./genproto.sh'
+                    }
+            }
         stage("Trivy - File System Scan") {
             steps {
                 sh 'trivy fs . > trivyfs.txt'
