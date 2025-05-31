@@ -12,26 +12,7 @@ pipeline {
             }
         }
 
-        stage("Sonarqube Analysis") {
-            steps {
-                withSonarQubeEnv('mysonar') {
-                    sh '''
-                        $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=online \
-                        -Dsonar.projectKey=online
-                    '''
-                }
-            }
-        }
-
-        stage("Quality Gates") {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                }
-            }
-        }
-        stage('Checkout') {
+        stage("Checkout") {
             steps {
                 checkout scm
             }
@@ -60,21 +41,48 @@ pipeline {
                             go build -v ./...
                             go test ./...
                         '''
+                    } else if (fileExists('cartservice.sln') || fileExists('cartservice.csproj')) {
+                        echo ".NET project detected"
+                        sh '''
+                            dotnet restore
+                            dotnet build --configuration Release
+                        '''
                     } else {
                         error "Unknown project type. Cannot install dependencies."
                     }
                 }
             }
-        }         // <-- added missing closing brace here for stage
+        }
 
         stage("Generate Protobuf Code") {
             when {
                 expression { fileExists('genproto.sh') }
-                }
+            }
             steps {
                 sh 'chmod +x genproto.sh && ./genproto.sh'
-                    }
             }
+        }
+
+        stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv('mysonar') {
+                    sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=online \
+                        -Dsonar.projectKey=online
+                    '''
+                }
+            }
+        }
+
+        stage("Quality Gates") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+
         stage("Trivy - File System Scan") {
             steps {
                 sh 'trivy fs . > trivyfs.txt'
